@@ -1,6 +1,6 @@
 # VideoRecovery
 
-動画ファイルをドラッグ＆ドロップするだけで簡単に復元できるツールです。
+動画ファイルをドラッグ＆ドロップするだけで簡単に復元できるツールです。<br>
 本ソフトウェアは、動画復元エンジンとして **untrunc** のフォーク版（[anthwlock](https://github.com/anthwlock/untrunc)様による）を使用しています。
 
 * [https://github.com/ponchio/untrunc](https://github.com/ponchio/untrunc)

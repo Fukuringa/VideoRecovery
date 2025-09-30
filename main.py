@@ -9,7 +9,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 import shutil
 import threading
 
-APP_VERSION = "1.1.0"
+APP_VERSION = "1.0.1"
 NEW_VERSION_AVAILABLE = False
 LATEST_VERSION_INFO = None
 
@@ -239,7 +239,16 @@ class UploadWidget(QtWidgets.QWidget):
     def show_version_dialog(self):
         if NEW_VERSION_AVAILABLE and LATEST_VERSION_INFO:
             v = LATEST_VERSION_INFO
-            msg = f"新しいバージョンがあります！\n\nバージョン: {v['version']}\n内容: {v['description']}\nリリース日: {v['time']}\n\nアップデートしますか？\n\n「はい」を押した場合、更新が始まり最大1分ほどで自動で起動します。\nそれまでの間ソフトを起動したりしないでください。"
+            def utc_to_jst(utc_str):
+                try:
+                    from datetime import datetime, timedelta
+                    dt = datetime.strptime(utc_str, "%Y-%m-%dT%H:%M:%SZ")
+                    jst = dt + timedelta(hours=9)
+                    return jst.strftime("%Y-%m-%d %H:%M:%S")
+                except Exception:
+                    return utc_str
+            jst_time = utc_to_jst(v['time'])
+            msg = f"新しいバージョンがあります！\n\nバージョン: {v['version']}\n内容: {v['description']}\nリリース日: {jst_time}\n\nアップデートしますか？\n\n「はい」を押した場合、更新が始まり最大1分ほどで自動で起動します。\nそれまでの間ソフトを起動したりしないでください。"
 
             msgBox = QtWidgets.QMessageBox(self)
             msgBox.setWindowTitle("アップデート")

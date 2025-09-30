@@ -9,7 +9,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 import shutil
 import threading
 
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.1.0"
 NEW_VERSION_AVAILABLE = False
 LATEST_VERSION_INFO = None
 
@@ -406,19 +406,34 @@ del "%~f0"
 def check_new_version():
     global NEW_VERSION_AVAILABLE, LATEST_VERSION_INFO
     try:
-        resp = requests.get("https://pastebin.com/raw/fAebrmCL", timeout=3)
+        resp = requests.get("https://api.github.com/repositories/1066738127/releases", timeout=3)
         if resp.status_code == 200:
-            versions = resp.json()
-            for v in versions:
-                if compare_version(v["version"], APP_VERSION) > 0:
+            releases = resp.json()
+            for v in releases:
+                version = v.get("tag_name")
+                assets = v.get("assets", [])
+                download_url = ""
+                for asset in assets:
+                    url = asset.get("browser_download_url", "")
+                    if url.endswith(".exe"):
+                        download_url = url
+                        break
+                if not download_url and assets:
+                    download_url = assets[0].get("browser_download_url", "")
+                if version and compare_version(version, APP_VERSION) > 0 and download_url:
                     NEW_VERSION_AVAILABLE = True
-                    LATEST_VERSION_INFO = v
+                    LATEST_VERSION_INFO = {
+                        "version": version,
+                        "description": v.get("body", ""),
+                        "time": v.get("published_at", ""),
+                        "url": download_url
+                    }
                     break
     except Exception:
         pass
 
 def compare_version(v1, v2):
-    def parse(v): return [int(x) for x in v.split('.')]
+    def parse(v): return [int(x) for x in re.findall(r'\d+', v)]
     p1, p2 = parse(v1), parse(v2)
     for a, b in zip(p1, p2):
         if a != b:
